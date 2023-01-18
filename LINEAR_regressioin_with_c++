@@ -1,0 +1,157 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class Network{
+  public:
+  double* x;
+  double* y;
+  double** w;
+  
+  double** weig_prev;
+  Network(int x_size, int y_size, int w_size, double* input, int weight_prev){
+      x = new double[x_size];
+      y = new double[y_size];
+      for(int i = 0; i<x_size; i++){
+          x[i] = input[i];
+      }
+      w = new double*[w_size];
+      for(int i =0 ; i<w_size; i++){
+          w[i] = new double[w_size];
+          for(int j = 0; j<w_size; j++){
+              double a =1+ rand()%9;
+              w[i][j] = a;
+          }
+      }
+  
+      weig_prev = new double*[weight_prev];
+      for(int i =0 ; i<weight_prev; i++){
+          weig_prev[i] = new double[weight_prev];
+          for(int j = 0; j<weight_prev; j++){
+              double b =1+ rand()%99;
+              weig_prev[i][j] = b;
+          }
+      }
+      for(int i = 0; i<y_size; i++){
+          y[i] = rand()%99 + 1;
+      }
+     // y[i] = actual_output[i];
+     // predicted = predicted_output;
+  }
+  
+  double learning_rate(double lr){
+      return lr;
+  }
+  
+  
+  double chnageoferrorwrtw(double ynew, double yold, double wnew, double wold){
+      double ans;
+      if((wnew)>0){
+         ans = (ynew - yold)/(wnew);
+      }
+      else{
+          ans = (ynew - yold);
+      }
+      //int ans = (ynew - yold)/(wnew - wold);
+      return ans;
+  }
+  
+
+  
+};
+
+
+
+int main(){
+    cout<<"ENTER THE SIZE OF THE INPUT DATA:"<<endl;
+    int input_size;
+    cin>>input_size;
+    double input[input_size];
+    for(int i = 0; i<input_size; i++){
+        cout<<"ENTER THE "<<i<<"th INPUT ELEMENT: ";
+        double takeinputfromuser;
+        cin>>takeinputfromuser;
+        input[i] = takeinputfromuser;
+    }
+    cout<<"ENTER THE SIZE OF THE OUTPUT DATA:"<<endl;
+    int output_size;
+    cin>>output_size;
+    double output[output_size];
+    for(int i = 0; i<output_size; i++){
+        cout<<"ENTER THE "<<i<<"th ACTUAL OUTPUT ELEMENT: ";
+        double takeoutfromuser;
+        cin>>takeoutfromuser;
+        output[i] = takeoutfromuser;
+    }
+ 
+    Network neural(output_size, output_size, output_size, input,output_size);
+    cout<<"WEIGHT MATRIX LOOK LIKE: "<<endl;
+    for(int i =0 ; i<output_size; i++){
+        for(int j = 0; j<output_size; j++){
+            cout<<neural.w[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    int epochs = 40;
+    double temp[output_size][output_size];
+    for(int i = 0; i<epochs; i++){
+        cout<<"EPOCHS "<<i<<" is running"<<endl;
+        if(neural.y[0]==output[0] and neural.y[1]==output[1] and neural.y[2]==output[2]){
+            cout<<"model trained"<<endl;
+            break;
+        }
+        else{
+            for(int j = 0; j<output_size; j++){
+                double tempy = 0;
+                for(int k = 0; k<output_size; k++){
+                    tempy = tempy + neural.w[j][k]*neural.x[k];
+                }
+                neural.y[j] = tempy;
+            }
+            //temp = neural.w;
+            for(int j =0; j<output_size; j++){
+                for(int k = 0; k<output_size; k++){
+                    temp[j][k] = neural.w[j][k];
+                }
+            }
+            for(int j =0; j<output_size; j++){
+                for(int k = 0; k<output_size; k++){
+                    neural.w[j][k] = neural.w[j][k] - neural.learning_rate(0.1)*neural.chnageoferrorwrtw(neural.y[j], output[j], neural.w[j][k], neural.weig_prev[j][k]);
+                    if(neural.w[j][k]<0){
+                        neural.w[j][k] = 1;
+                    }
+                }
+            }
+            for(int j =0; j<output_size; j++){
+                for(int k = 0; k<output_size; k++){
+                neural.weig_prev[j][k] = temp[j][k];
+                }
+            }
+            //;
+            
+        }
+        for(int i = 0; i<output_size; i++){
+        cout<<"Actual: "<<output[i]<<" "<<"PREDICTED: "<<neural.y[i]<<" Mean square error: "<<((neural.y[i] - output[i])*(neural.y[i] - output[i]))/output_size<<endl;
+    }
+    }
+    
+    cout<<"Testing the model: "<<endl;
+    int testing_array[3];
+    for(int i = 0; i<3; i++){
+        int n;
+        cout<<"Enter the "<<i<<"th value to test"<<endl;
+        cin>>n;
+        testing_array[i] = n;
+        
+    }
+    for(int i = 0; i<3; i++){
+        double temp = 0;
+        for(int j = 0; j<3; j++){
+            temp = temp + neural.w[i][j]*testing_array[i];
+        }
+        cout<<"tested value: "<<temp<<endl;
+    }
+   /* for(int i = 0; i<3; i++){
+        cout<<"Actual: "<<output[i]<<" "<<"PREDICTED: "<<neural.y[i]<<endl;
+    }*/
+    
+}
